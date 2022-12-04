@@ -1,0 +1,47 @@
+<!doctype html>
+<title>Pi aproximation</title>
+<style>
+  body { background: #333; color: #ddd }
+</style>
+<canvas width="400" height="400"></canvas>
+<div>π ≈ <span id="pi"></span></div>
+<script>
+const piEl = document.querySelector('#pi')
+const canvas = document.querySelector('canvas')
+const context = canvas.getContext('2d');
+const solutions = approximation(points())
+
+function* points() {
+  while (true) {
+    const x = Math.random()
+    const y = Math.random()
+    const inside = Math.sqrt(x * x + y * y) < 1;
+    yield { x, y, inside }
+  }
+}
+
+function* approximation(points) {
+  let allCount = 0
+  let insideCount = 0
+  for (const point of points) {
+    if (point.inside) insideCount++
+    yield { ...point, pi: 4 * (insideCount / ++allCount) }
+  }
+}
+
+function* take(count, seq) {
+  for (var i = 0; i < count; i++) {
+    yield seq.next().value
+  }
+}
+
+(function next() {
+  for (const item of take(100, solutions)) {
+    context.fillStyle = item.inside ? '#f00' : '#555'
+    context.fillRect(item.x * canvas.width, item.y * canvas.height, 1, 1)
+    piEl.textContent = item.pi
+  }
+  requestAnimationFrame(next)
+})()
+
+</script>
